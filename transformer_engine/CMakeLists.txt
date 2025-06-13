@@ -20,7 +20,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
-find_package(CUDAToolkit REQUIRED cublas nvToolsExt)
+find_package(CUDAToolkit REQUIRED)
 find_package(CUDNN REQUIRED cudnn)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 

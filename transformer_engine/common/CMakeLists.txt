@@ -2,6 +2,16 @@
 #
 # See LICENSE for license information.
 
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+  if (CUDAToolkit_VERSION VERSION_GREATER_EQUAL 13.0)
+    set(CMAKE_CUDA_ARCHITECTURES 75 80 89 90 100 120)
+  elseif (CUDAToolkit_VERSION VERSION_GREATER_EQUAL 12.8)
+    set(CMAKE_CUDA_ARCHITECTURES 70 80 89 90 100 120)
+  else ()
+    set(CMAKE_CUDA_ARCHITECTURES 70 80 89 90)
+  endif()
+endif()
+
 # Configure Transformer Engine library
 set(transformer_engine_SOURCES)
 list(APPEND transformer_engine_SOURCES
@@ -55,7 +65,6 @@ target_link_libraries(transformer_engine PUBLIC
                       CUDA::cuda_driver
                       CUDA::cudart
                       CUDA::nvrtc
-                      CUDA::nvToolsExt
                       CUDNN::cudnn)
 target_include_directories(transformer_engine PRIVATE
                            ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
@@ -82,6 +91,10 @@ make_string_header_from_file(transpose/rtc/transpose.cu
                              string_code_transpose_rtc_transpose_cu)
 target_include_directories(transformer_engine PRIVATE
                            "${CMAKE_CURRENT_BINARY_DIR}/string_headers")
+target_include_directories(transformer_engine PRIVATE
+                           ${cuda_include_path}/../../../lib/python3.1/site-packages/nvidia/nvtx/include/)
+target_link_libraries(transformer_engine PUBLIC
+                      ${cuda_include_path}/../../../lib/python3.1/site-packages/nvidia/nvtx/lib/libnvToolsExt.so.1)
 
 # Compiler options
 set_source_files_properties(fused_softmax/scaled_masked_softmax.cu

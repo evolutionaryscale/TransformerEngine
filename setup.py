@@ -11,6 +11,7 @@ import shutil
 import subprocess
 from subprocess import CalledProcessError
 import sys
+import sysconfig
 import tempfile
 from typing import List, Optional, Tuple, Union
 
@@ -284,7 +285,7 @@ def setup_requirements() -> Tuple[List[str], List[str], List[str]]:
 
     # Framework-specific requirements
     if "pytorch" in frameworks():
-        add_unique(install_reqs, ["torch", "flash-attn>=1.0.6,<=2.3.3,!=2.0.9,!=2.1.0"])
+        add_unique(install_reqs, ["torch", "flash-attn>=1.0.6,<3,!=2.0.9,!=2.1.0"])
         add_unique(test_reqs, ["numpy", "onnxruntime", "torchvision"])
     if "jax" in frameworks():
         if not found_pybind11():
@@ -437,7 +438,7 @@ def setup_common_extension() -> CMakeExtension:
     Also builds JAX or userbuffers support if needed.
 
     """
-    cmake_flags = []
+    cmake_flags = ["-DCMAKE_CUDA_ARCHITECTURES=70;80;89;90;100;120"]
     if "jax" in frameworks():
         cmake_flags.append("-DENABLE_JAX=ON")
     if with_userbuffers():
@@ -500,6 +501,9 @@ def setup_pytorch_extension() -> setuptools.Extension:
             nvcc_flags.extend(["-gencode", "arch=compute_80,code=sm_80"])
         if version >= (11, 8):
             nvcc_flags.extend(["-gencode", "arch=compute_90,code=sm_90"])
+        nvcc_flags.extend(["-gencode", "arch=compute_89,code=sm_89"])
+        nvcc_flags.extend(["-gencode", "arch=compute_100,code=sm_100"])
+        nvcc_flags.extend(["-gencode", "arch=compute_120,code=sm_120"])
 
     # userbuffers support
     if with_userbuffers():
@@ -516,7 +520,7 @@ def setup_pytorch_extension() -> setuptools.Extension:
     return CUDAExtension(
         name="transformer_engine_extensions",
         sources=sources,
-        include_dirs=include_dirs,
+        include_dirs=include_dirs + [sysconfig.get_paths()["purelib"] + "/nvidia/nvtx/include"],
         # libraries=["transformer_engine"], ### TODO (tmoon) Debug linker errors
         extra_compile_args={
             "cxx": cxx_flags,
