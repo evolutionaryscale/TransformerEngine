@@ -473,7 +473,7 @@ def setup_pytorch_extension() -> setuptools.Extension:
     ]
 
     # Compiler flags
-    cxx_flags = ["-O3"]
+    cxx_flags = ["-O3", "-fvisibility=hidden"]
     nvcc_flags = [
         "-O3",
         "-gencode",
@@ -501,7 +501,6 @@ def setup_pytorch_extension() -> setuptools.Extension:
             nvcc_flags.extend(["-gencode", "arch=compute_80,code=sm_80"])
         if version >= (11, 8):
             nvcc_flags.extend(["-gencode", "arch=compute_90,code=sm_90"])
-        nvcc_flags.extend(["-gencode", "arch=compute_89,code=sm_89"])
         nvcc_flags.extend(["-gencode", "arch=compute_100,code=sm_100"])
         nvcc_flags.extend(["-gencode", "arch=compute_120,code=sm_120"])
 
