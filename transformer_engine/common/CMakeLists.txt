@@ -95,6 +95,10 @@ target_include_directories(transformer_engine PRIVATE
                            ${cuda_include_path}/../../../lib/python3.1/site-packages/nvidia/nvtx/include/)
 target_link_libraries(transformer_engine PUBLIC
                       ${cuda_include_path}/../../../lib/python3.1/site-packages/nvidia/nvtx/lib/libnvToolsExt.so.1)
+set_target_properties(transformer_engine PROPERTIES
+    BUILD_RPATH "$ORIGIN/../..;$ORIGIN/nvidia/nvtx/lib"
+    INSTALL_RPATH "$ORIGIN/../..;$ORIGIN/nvidia/nvtx/lib"
+)
 
 # Compiler options
 set_source_files_properties(fused_softmax/scaled_masked_softmax.cu
